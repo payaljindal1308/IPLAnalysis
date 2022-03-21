@@ -1,26 +1,26 @@
 
 const fs = require('fs');
-const csvFilePathMatches = '/Users/payalgupta/Desktop/JS Projects/CSVDATA/src/data/matches.csv';
+const csvMatchesFilePath = '../data/matches.csv';
 const csvMatches = require('csvtojson')
-const csvFilePathDeliveries = '/Users/payalgupta/Desktop/JS Projects/CSVDATA/src/data/deliveries.csv';
+const csvDeliveriessFilePath = '../data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
     
 
-csvMatches().fromFile(csvFilePathMatches).then((jsonMatchIdObj)=>{ 
-    let matchIdsArray = getMatchIds(jsonMatchIdObj);
-    csvDeliveries().fromFile(csvFilePathDeliveries).then((jsonDeliveriesObj)=>{  
+csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{ 
+    let matchIdsArray = getMatchIds(jsonMatchesObj);
+    csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveriesObj)=>{  
         let extraRuns = getExtraRuns(matchIdsArray, jsonDeliveriesObj);
         console.log(extraRuns);
-        fs.writeFile('/Users/payalgupta/Desktop/JS Projects/CSVDATA/src/public/output/extraRunsPerTeam.json', JSON.stringify(extraRuns),{ flag: 'a+' }, err => {} )
+        fs.writeFile('../public/output/extraRunsPerTeam.json', JSON.stringify(extraRuns),{ flag: 'a+' }, err => {} )
     });
 });
 
 
 //Function to get match ids of 2016 matches
 
-function getMatchIds(jsonMatchIdObj){
+function getMatchIds(jsonMatchesObj){
     let MatchIds =[];
-    jsonMatchIdObj.forEach(element => {
+    jsonMatchesObj.forEach(element => {
         if (element.season === '2016'){
             MatchIds.push(element.id);
         } 

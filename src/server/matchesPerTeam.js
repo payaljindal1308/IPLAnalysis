@@ -1,11 +1,11 @@
 const fs = require('fs');
-const csvFilePath = '/Users/payalgupta/Desktop/JS Projects/CSVDATA/src/data/matches.csv';
+const csvFilePath = '../data/matches.csv';
 const csv = require('csvtojson')
 
 csv().fromFile(csvFilePath).then((jsonObj)=>{  
     let matchesPerTeam = findMatchesPerTeamPerYear(jsonObj);
     console.log(matchesPerTeam);
-    fs.writeFile('/Users/payalgupta/Desktop/JS Projects/CSVDATA/src/public/output/matchesPerTeam.json', JSON.stringify(matchesPerTeam),{ flag: 'a+' }, err => {} )
+    fs.writeFile('../public/output/matchesPerTeam.json', JSON.stringify(matchesPerTeam),{ flag: 'a+' }, err => {} );
 });
 
     // Finding matches won per team
