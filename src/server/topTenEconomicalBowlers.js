@@ -8,9 +8,9 @@ const csvDeliveries = require('csvtojson')
 csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{ 
     let matchIdsArray = getMatchIds(jsonMatchesObj);
     csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveriesObj)=>{  
-        let topTenBowlersWithEconomyRate = getEconomicalbowlerRuns(matchIdsArray, jsonDeliveriesObj);
+        let topEconomicBowlersWithEconomyRate = getBowlerEconomyRates(matchIdsArray, jsonDeliveriesObj);
         let topTenEconomicalBowlers =[];
-        topTenBowlersWithEconomyRate.forEach(element => topTenEconomicalBowlers.push(element[0]));
+        topEconomicBowlersWithEconomyRate.forEach(element => topTenEconomicalBowlers.push(element[0]));
         console.log(topTenEconomicalBowlers);
         fs.writeFile('../public/output/topTenEconomicalbowlers.json', JSON.stringify(topTenEconomicalBowlers),{ flag: 'a+' }, err => {} )
     });
@@ -19,7 +19,7 @@ csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{
 function getMatchIds(jsonMatchesObj){
     let MatchIds =[];
     jsonMatchesObj.forEach(element => {
-        if (element.season === '2016'){
+        if (element.season === '2015'){
             MatchIds.push(element.id);
         } 
     });
@@ -27,27 +27,27 @@ function getMatchIds(jsonMatchesObj){
 }
 
 
-function getEconomicalbowlerRuns(matchIdsArray, jsonDeliveriesObj){ 
+function getBowlerEconomyRates(matchIdsArray, jsonDeliveriesObj){
     let bowlerRuns = {};
-    let delivery = {};
-    let bowlerEconomyRate = {};
+    let bowlerDeliveries = {};
+    let bowlerEconomyRates = {};
     for ( let id of matchIdsArray){
         for (let index = 0; index < jsonDeliveriesObj.length; index++){
             if( jsonDeliveriesObj[index].match_id === id ){
                 if(bowlerRuns[jsonDeliveriesObj[index].bowler]){
                     bowlerRuns[jsonDeliveriesObj[index].bowler] += Number(jsonDeliveriesObj[index].total_runs);
-                    delivery[jsonDeliveriesObj[index].bowler] += 1;
+                    bowlerDeliveries[jsonDeliveriesObj[index].bowler] += 1;
                 }
                 else{
                     bowlerRuns[jsonDeliveriesObj[index].bowler] = Number(jsonDeliveriesObj[index].total_runs);
-                    delivery[jsonDeliveriesObj[index].bowler] = 1;
+                    bowlerDeliveries[jsonDeliveriesObj[index].bowler] = 1;
                 }
             }
         }
     }
     for (let bowler in bowlerRuns){
-        bowlerEconomyRate[bowler] = (bowlerRuns[bowler]*6)/delivery[bowler]; // calculating economy rate
+        bowlerEconomyRates[bowler] = (bowlerRuns[bowler]*6)/bowlerDeliveries[bowler]; // calculating economy rate
     }
-    return Object.entries(bowlerEconomyRate).sort((a,b) => a[1]-b[1]).slice(0,10)// sorting economy rate and returning top 10 of them
+    return Object.entries(bowlerEconomyRates).sort((a,b) => a[1]-b[1]).slice(0,10)// sorting economy rate and returning top 10 of them
 }
 
