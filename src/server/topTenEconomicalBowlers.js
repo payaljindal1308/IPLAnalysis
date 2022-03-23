@@ -1,8 +1,8 @@
 
 const fs = require('fs');
-const csvMatchesFilePath = '../data/matches.csv';
+const csvMatchesFilePath = './src/data/matches.csv';
 const csvMatches = require('csvtojson')
-const csvDeliveriessFilePath = '../data/deliveries.csv';
+const csvDeliveriessFilePath = './src/data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
     
 csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{ 
@@ -12,7 +12,7 @@ csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{
         let topTenEconomicalBowlers =[];
         topEconomicBowlersWithEconomyRate.forEach(element => topTenEconomicalBowlers.push(element[0]));
         console.log(topTenEconomicalBowlers);
-        fs.writeFile('../public/output/topTenEconomicalbowlers.json', JSON.stringify(topTenEconomicalBowlers),{ flag: 'a+' }, err => {} )
+        fs.writeFile('./src/public/output/topTenEconomicalbowlers.json', JSON.stringify(topTenEconomicalBowlers),{ flag: 'a+' }, err => {} )
     });
 });
 
@@ -31,17 +31,15 @@ function getBowlerEconomyRates(matchIdsArray, jsonDeliveriesObj){
     let bowlerRuns = {};
     let bowlerDeliveries = {};
     let bowlerEconomyRates = {};
-    for ( let id of matchIdsArray){
-        for (let index = 0; index < jsonDeliveriesObj.length; index++){
-            if( jsonDeliveriesObj[index].match_id === id ){
-                if(bowlerRuns[jsonDeliveriesObj[index].bowler]){
-                    bowlerRuns[jsonDeliveriesObj[index].bowler] += Number(jsonDeliveriesObj[index].total_runs);
-                    bowlerDeliveries[jsonDeliveriesObj[index].bowler] += 1;
-                }
-                else{
-                    bowlerRuns[jsonDeliveriesObj[index].bowler] = Number(jsonDeliveriesObj[index].total_runs);
-                    bowlerDeliveries[jsonDeliveriesObj[index].bowler] = 1;
-                }
+    for (let index = 0; index < jsonDeliveriesObj.length; index++){
+        if( matchIdsArray.includes(jsonDeliveriesObj[index].match_id)){
+            if(bowlerRuns[jsonDeliveriesObj[index].bowler]){
+                bowlerRuns[jsonDeliveriesObj[index].bowler] += Number(jsonDeliveriesObj[index].total_runs);
+                bowlerDeliveries[jsonDeliveriesObj[index].bowler] += 1;
+            }
+            else{
+                bowlerRuns[jsonDeliveriesObj[index].bowler] = Number(jsonDeliveriesObj[index].total_runs);
+                bowlerDeliveries[jsonDeliveriesObj[index].bowler] = 1;
             }
         }
     }

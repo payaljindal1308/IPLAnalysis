@@ -1,33 +1,37 @@
 const fs = require('fs');
-const csvFilePath = '../data/matches.csv';
+const csvFilePath = './src/data/matches.csv';
 const csv = require('csvtojson')
 
 csv().fromFile(csvFilePath).then((jsonObj)=>{  
-    let matchesPerTeam = findMatchesPerTeamPerYear(jsonObj);
+    let matchesObject = findMatchesPerTeamPerYear(jsonObj); 
+    let matchesPerTeam = noOfMatchesPerTeamPerYear(matchesObject);
     console.log(matchesPerTeam);
-    fs.writeFile('../public/output/matchesPerTeam.json', JSON.stringify(matchesPerTeam),{ flag: 'a+' }, err => {} );
+    fs.writeFile('./src/public/output/matchesPerTeam.json', JSON.stringify(matchesPerTeam),{ flag: 'a+' }, err => {} );
 });
 
-    // Finding matches won per team
     function findMatchesPerTeamPerYear(jsonObj){
-    let  MatchObj = {};
+    let  matchesObj = {};
     jsonObj.forEach(element => {
-        if(MatchObj[element.winner]) MatchObj[element.winner].push(element.season);
+        if(matchesObj[element.winner]) matchesObj[element.winner].push(element.season);
         else{
-            MatchObj[element.winner] = [element.season];
+            matchesObj[element.winner] = [element.season];
         }
     });
-    let MatchesPerTeam = {};
-    for ( let winners in MatchObj){
-        let count = {};
-        for (let year of MatchObj[winners]){
-            if(count[year]) count[year]+=1;
-            else{
-                count[year] = 1;
+    return matchesObj;
+    }   
+
+    function noOfMatchesPerTeamPerYear(matchesObj){
+        let matchesPerTeam = {};
+        for ( let winners in matchesObj){
+            let count = {};
+            for (let year of matchesObj[winners]){
+                if(count[year]) count[year]+=1;
+                else{
+                    count[year] = 1;
+                }
             }
+            matchesPerTeam[winners] = count;
         }
-        MatchesPerTeam[winners] = count;
+        return matchesPerTeam;
     }
-    return MatchesPerTeam;
-   
-}
+    
