@@ -27,13 +27,10 @@ function getEconomicBowlerInSuperOver(jsonObj){
 }
 
 function getMostEconomicBowler(bowlersData){
+
     let bowlerEconomyRates = {};
-    for( let keys in bowlersData){
-        bowlerEconomyRates[keys] = bowlersData[keys].runs/bowlersData[keys].deliveries;
+    Object.keys(bowlersData).forEach((keys) => {bowlerEconomyRates[keys] = bowlersData[keys].runs/bowlersData[keys].deliveries});
+    console.log(bowlerEconomyRates);
+    return Object.keys(bowlerEconomyRates).find(keys => { return bowlerEconomyRates[keys] === Math.min(...Object.values(bowlerEconomyRates))
+    })
     }
-    for( let keys in bowlerEconomyRates){
-        if(bowlerEconomyRates[keys] === Math.min(...Object.values(bowlerEconomyRates))){
-            return keys;
-        }
-    }
-}

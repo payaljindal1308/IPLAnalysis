@@ -32,15 +32,15 @@ function getMatchIds(jsonMatchesObj){
 // function to return extra runs per team in 2016
 function getExtraRuns(matchIdsArray, jsonDeliveriesObj){
     let TeamObject = {};
-        for (let index =0; index < jsonDeliveriesObj.length; index++){
-            if (matchIdsArray.includes(jsonDeliveriesObj[index].match_id)){
-                if(TeamObject[jsonDeliveriesObj[index].bowling_team]){
-                    TeamObject[jsonDeliveriesObj[index].bowling_team] += Number(jsonDeliveriesObj[index].extra_runs);
+        jsonDeliveriesObj.forEach( element => {
+            if (matchIdsArray.includes(element.match_id)){
+                if(TeamObject[element.bowling_team]){
+                    TeamObject[element.bowling_team] += Number(element.extra_runs);
                 }
                 else {
-                    TeamObject[jsonDeliveriesObj[index].bowling_team] = Number(jsonDeliveriesObj[index].extra_runs);
-                }
+                    TeamObject[element.bowling_team] = Number(element.extra_runs);
                 }
             }
+        });
     return TeamObject;
 }

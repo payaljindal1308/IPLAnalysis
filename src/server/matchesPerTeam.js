@@ -22,16 +22,16 @@ csv().fromFile(csvFilePath).then((jsonObj)=>{
 
     function noOfMatchesPerTeamPerYear(matchesObj){
         let matchesPerTeam = {};
-        for ( let winners in matchesObj){
+        Object.keys(matchesObj).forEach( element => {
             let count = {};
-            for (let year of matchesObj[winners]){
+            Object.values(matchesObj[element]).forEach( year => {
                 if(count[year]) count[year]+=1;
                 else{
                     count[year] = 1;
                 }
-            }
-            matchesPerTeam[winners] = count;
-        }
+            });
+            matchesPerTeam[element] = count;
+        });
         return matchesPerTeam;
     }
     

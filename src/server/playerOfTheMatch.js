@@ -16,9 +16,6 @@ function getPlayersOFTheMatches(jsonMatchesObj){
 
 function highestPlayerOfTheMatch(playerOfTheMatchPlayers, jsonMatchesObj){
     jsonMatchesObj.forEach(element => playerOfTheMatchPlayers[element.player_of_match] += 1);
-    for ( let keys in playerOfTheMatchPlayers){
-        if (playerOfTheMatchPlayers[keys] === Math.max(...Object.values(playerOfTheMatchPlayers))){
-            return keys;
-        }
-    }
+    return Object.keys(playerOfTheMatchPlayers).find(keys => { return playerOfTheMatchPlayers[keys] === Math.max(...Object.values(playerOfTheMatchPlayers));
+    });
 }

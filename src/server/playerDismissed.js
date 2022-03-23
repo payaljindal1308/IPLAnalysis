@@ -14,11 +14,8 @@ function getDismissedPlayers(jsonDeliveriesObj){
 
 function getMostDismissedPlayer(dismissedPlayers, jsonDeliveriesObj){
     jsonDeliveriesObj.forEach(element => { if(element.player_dismissed) dismissedPlayers[element.player_dismissed] += 1});
-    for (let keys in dismissedPlayers){
-        if(dismissedPlayers[keys] === Math.max(...Object.values(dismissedPlayers))){
-            return keys;
-        }
-    }
+    return Object.keys(dismissedPlayers).find( keys => { return dismissedPlayers[keys] === Math.max(...Object.values(dismissedPlayers));
+});
 }
         
 
