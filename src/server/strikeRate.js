@@ -1,17 +1,3 @@
-/*BatsManData ={}
-if(BatsManData[id]){
-    if(BatsManData['batsman']['2008']) { 
-        BatsManData['batsman']['2008'].runs+=1;
-        BatsManData['batsman']['2008'].balls+=1;
-        
-    else{ BatsManData['batsman']['2008'] = {
-        runs : obj.total_runs,
-        balls : 1
-    };
-}
-else{
-    BatsManData['batsman'] = { '2008' : { runs : obj.total_runs, balls : 1};
-}*/
 
 const fs = require('fs');
 const csvMatchesFilePath = './src/data/matches.csv';
