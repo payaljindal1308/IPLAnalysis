@@ -2,20 +2,36 @@ const fs = require('fs');
 const csvMatchesFilePath = './src/data/matches.csv';
 const csvMatches = require('csvtojson');
 csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj) => {
-    let playerOfTheMatchPlayers = getPlayersOFTheMatches(jsonMatchesObj);
-    let maximumTimesPlayerOfTheMatch = highestPlayerOfTheMatch(playerOfTheMatchPlayers, jsonMatchesObj);
-    console.log(maximumTimesPlayerOfTheMatch);
-    fs.writeFile('./src/public/output/playerOfTheMatch.json', JSON.stringify(maximumTimesPlayerOfTheMatch),{ flag: 'a+' }, err => {} )
-});
+    let matchIds = getMatchIdsWithSeason(jsonMatchesObj);      
+        let highestPlayerOfTheMatch = gethighestPlayerOfTheMatch(matchIds);
+        console.log(highestPlayerOfTheMatch);
+        fs.writeFile('./src/public/output/playerOfTheMatch.json', JSON.stringify(highestPlayerOfTheMatch),{ flag: 'a+' }, err => {} )
+    });
 
-
-function getPlayersOFTheMatches(jsonMatchesObj){
-    return jsonMatchesObj.reduce((teamObj, element) => { teamObj[element.player_of_match] = 0; return teamObj},{});
+function getMatchIdsWithSeason(jsonMatchesObj){
+    let matchIds = {};
+    jsonMatchesObj.forEach(element => { 
+        if(matchIds[element.season]) {
+            if(matchIds[element.season][element.player_of_match]) matchIds[element.season][element.player_of_match]+=1;
+            else matchIds[element.season][element.player_of_match] = 1;
+        }
+        else{
+            matchIds[element.season] = {};
+            matchIds[element.season][element.player_of_match] = 1;
+        }
+    });
+    return matchIds;
+ 
 }
 
 
-function highestPlayerOfTheMatch(playerOfTheMatchPlayers, jsonMatchesObj){
-    jsonMatchesObj.forEach(element => playerOfTheMatchPlayers[element.player_of_match] += 1);
-    return Object.keys(playerOfTheMatchPlayers).find(keys => { return playerOfTheMatchPlayers[keys] === Math.max(...Object.values(playerOfTheMatchPlayers));
-    });
+
+function gethighestPlayerOfTheMatch(matchIds){
+    let highestPlayerOfMatch = Object.keys(matchIds).reduce((playerArray,keys) => {
+            playerArray[keys] = Object.keys(matchIds[keys]).find(element => {
+        if(matchIds[keys][element] === Math.max(...Object.values(matchIds[keys]))) return element;
+    }) 
+    return playerArray;
+    },{});
+    return highestPlayerOfMatch;
 }
