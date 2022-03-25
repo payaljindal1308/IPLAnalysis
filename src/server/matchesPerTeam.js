@@ -12,9 +12,11 @@ csv().fromFile(csvFilePath).then((jsonObj)=>{
     function findMatchesPerTeamPerYear(jsonObj){
     let  matchesObj = {};
     jsonObj.forEach(element => {
+        if(element.winner){
         if(matchesObj[element.winner]) matchesObj[element.winner].push(element.season);
         else{
             matchesObj[element.winner] = [element.season];
+        }
         }
     });
     return matchesObj;
