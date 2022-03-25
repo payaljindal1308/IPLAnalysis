@@ -1,8 +1,8 @@
 
 const fs = require('fs');
-const csvMatchesFilePath = './src/data/matches.csv';
+const csvMatchesFilePath = 'data/matches.csv';
 const csvMatches = require('csvtojson')
-const csvDeliveriessFilePath = './src/data/deliveries.csv';
+const csvDeliveriessFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
     
 
@@ -11,7 +11,7 @@ csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{
     csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveriesObj)=>{  
         let extraRuns = getExtraRuns(matchIdsArray, jsonDeliveriesObj);
         console.log(extraRuns);
-        fs.writeFile('./src/public/output/extraRunsPerTeam.json', JSON.stringify(extraRuns),{ flag: 'a+' }, err => {} )
+        fs.writeFile('public/output/extraRunsPerTeam.json', JSON.stringify(extraRuns),{ flag: 'a+' }, err => {} )
     });
 });
 

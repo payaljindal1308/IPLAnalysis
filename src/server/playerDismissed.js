@@ -1,11 +1,11 @@
 const fs = require('fs');
-const csvDeliveriesFilePath = './src/data/deliveries.csv';
+const csvDeliveriesFilePath = 'data/deliveries.csv';
 const csvMatches = require('csvtojson');
 csvMatches().fromFile(csvDeliveriesFilePath).then(( jsonDeliveriesObj ) => {
     let dismissedPlayers = getDismissedPlayers(jsonDeliveriesObj);
     let mostDismissedPlayer = getMostDismissedPlayer(dismissedPlayers, jsonDeliveriesObj);
     console.log(mostDismissedPlayer);
-    fs.writeFile('./src/public/output/playerDismissed.json', JSON.stringify(mostDismissedPlayer),{ flag: 'a+' }, err => {} )
+    fs.writeFile('public/output/playerDismissed.json', JSON.stringify(mostDismissedPlayer),{ flag: 'a+' }, err => {} )
 });
 
 function getDismissedPlayers(jsonDeliveriesObj){

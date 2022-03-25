@@ -1,11 +1,11 @@
 const fs = require('fs');
-const csvMatchesFilePath = './src/data/matches.csv';
+const csvMatchesFilePath = 'data/matches.csv';
 const csvMatches = require('csvtojson');
 csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj) => {
     let teamObj = getTeamsObject(jsonMatchesObj);
     let tossAndMatchWinningTeams = getTossAndMatchWinningTeams(jsonMatchesObj, teamObj);
     console.log(tossAndMatchWinningTeams);
-    fs.writeFile('./src/public/output/tossAndMatchWon.json', JSON.stringify(tossAndMatchWinningTeams),{ flag: 'a+' }, err => {} )
+    fs.writeFile('public/output/tossAndMatchWon.json', JSON.stringify(tossAndMatchWinningTeams),{ flag: 'a+' }, err => {} )
 });
 
 

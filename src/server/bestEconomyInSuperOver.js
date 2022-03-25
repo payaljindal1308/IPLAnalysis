@@ -1,11 +1,11 @@
 const fs = require('fs');
-const csvDeliveriessFilePath = './src/data/deliveries.csv';
+const csvDeliveriessFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
 csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonObj) => {
     let bowlersData = getEconomicBowlerInSuperOver(jsonObj);
     let bestEconomicBowlerInSuperOver = getMostEconomicBowler(bowlersData);
     console.group(bestEconomicBowlerInSuperOver);
-    fs.writeFile('./src/public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowlerInSuperOver),{ flag: 'a+' }, err => {} )
+    fs.writeFile('public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowlerInSuperOver),{ flag: 'a+' }, err => {} )
 });
 
 function getEconomicBowlerInSuperOver(jsonObj){
