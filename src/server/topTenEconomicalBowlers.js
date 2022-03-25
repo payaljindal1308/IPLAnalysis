@@ -1,8 +1,8 @@
 
 const fs = require('fs');
-const csvMatchesFilePath = './src/data/matches.csv';
+const csvMatchesFilePath = 'data/matches.csv';
 const csvMatches = require('csvtojson')
-const csvDeliveriessFilePath = './src/data/deliveries.csv';
+const csvDeliveriessFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
     
 csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{ 
@@ -10,9 +10,9 @@ csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{
     csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveriesObj)=>{  
         let topEconomicBowlersWithEconomyRate = getBowlerEconomyRates(matchIdsArray, jsonDeliveriesObj);
         let topTenEconomicalBowlers =[];
-        topEconomicBowlersWithEconomyRate.forEach(element => topTenEconomicalBowlers.push(element[0]));
-        console.log(topTenEconomicalBowlers);
-        fs.writeFile('./src/public/output/topTenEconomicalbowlers.json', JSON.stringify(topTenEconomicalBowlers),{ flag: 'a+' }, err => {} )
+        //topEconomicBowlersWithEconomyRate.forEach(element => topTenEconomicalBowlers.push(element[0]));
+        console.log(topEconomicBowlersWithEconomyRate);
+        fs.writeFile('public/output/topTenEconomicalbowlers.json', JSON.stringify(topEconomicBowlersWithEconomyRate),{ flag: 'a+' }, err => {} )
     });
 });
 
