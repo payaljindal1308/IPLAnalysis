@@ -1,36 +1,65 @@
 const fs = require('fs');
+const csvMatchesFilePath = 'data/matches.csv';
+const csvMatches = require('csvtojson')
 const csvDeliveriessFilePath = 'data/deliveries.csv';
-const csvDeliveries = require('csvtojson')
-csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonObj) => {
-    let bowlersData = getEconomicBowlerInSuperOver(jsonObj);
-    let bestEconomicBowlerInSuperOver = getMostEconomicBowler(bowlersData);
-    console.group(bestEconomicBowlerInSuperOver);
-    fs.writeFile('public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowlerInSuperOver),{ flag: 'a+' }, err => {} )
+const csvDeliveries = require('csvtojson');
+
+csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj) => {
+    let matchIds = getMatchIdsWithSeason(jsonMatchesObj);
+    csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonObj)=>{
+        let bowlersData = getEconomicBowlerInSuperOver(matchIds, jsonObj);
+        let bestEconomicBowlerInSuperOver = getMostEconomicBowler(bowlersData);
+        console.group(bestEconomicBowlerInSuperOver);
+        fs.writeFile('public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowlerInSuperOver),{ flag: 'a+' }, err => {} )
+    })
 });
 
-function getEconomicBowlerInSuperOver(jsonObj){
+function getMatchIdsWithSeason(jsonMatchesObj){
+    let matchIds = {};
+    jsonMatchesObj.forEach(element => { 
+        if(matchIds[element.season]) matchIds[element.season].push(element.id);
+        else matchIds[element.season] = [element.id];
+    });
+    return matchIds;
+
+}
+
+function getEconomicBowlerInSuperOver(matchIds, jsonObj){
     let bowlerData = {};
-    jsonObj.forEach(element => {
-        if(element.is_super_over != 0){
-            if(bowlerData[element.bowler]) {
-                bowlerData[element.bowler].runs += Number(element.total_runs);
-                bowlerData[element.bowler].deliveries += 1;
-            }
-            else{ bowlerData[element.bowler] = {
-                runs : Number(element.total_runs),
-                deliveries : 1
+    Object.keys(matchIds).forEach(keys => {
+        bowlerData[keys] = {};
+        jsonObj.forEach(element => {
+            if (matchIds[keys].includes(element.match_id) && element.is_super_over){
+                    if(bowlerData[keys][element.bowler]) {
+                        bowlerData[keys][element.bowler].runs += Number(element.total_runs);
+                        bowlerData[keys][element.bowler].deliveries += 1;
+                    }
+                    else{ bowlerData[keys][element.bowler] = {
+                        runs : Number(element.total_runs),
+                        deliveries : 1
+                        }
+                    }
                 }
-            }
-        }
+            })
+        
     });
     return bowlerData;
 }
 
 function getMostEconomicBowler(bowlersData){
-
     let bowlerEconomyRates = {};
-    Object.keys(bowlersData).forEach((keys) => {bowlerEconomyRates[keys] = bowlersData[keys].runs/bowlersData[keys].deliveries});
-    console.log(bowlerEconomyRates);
-    return Object.keys(bowlerEconomyRates).find(keys => { return bowlerEconomyRates[keys] === Math.min(...Object.values(bowlerEconomyRates))
-    })
+    Object.keys(bowlersData).forEach((year) => { 
+        bowlerEconomyRates[year] = {};
+        Object.keys(bowlersData[year]).forEach(bowler => {
+        bowlerEconomyRates[year][bowler] = bowlersData[year][bowler].runs/bowlersData[year][bowler].deliveries});
+    }) 
+    let bowlerEconomy = {};
+    Object.keys(bowlerEconomyRates).forEach(year => { 
+        bowlerEconomy[year] = {};
+        Object.keys(bowlerEconomyRates[year]).forEach(bowler => { if (bowlerEconomyRates[year][bowler] === Math.min(...Object.values(bowlerEconomyRates[year]))){
+            bowlerEconomy[year][bowler] = bowlerEconomyRates[year][bowler];
+        }
     }
+    )});
+    return bowlerEconomy;
+}
