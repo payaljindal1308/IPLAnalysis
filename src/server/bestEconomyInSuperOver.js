@@ -2,56 +2,36 @@ const fs = require('fs');
 const csvDeliveriesFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
 csvDeliveries().fromFile(csvDeliveriesFilePath).then((deliveriesArray) => {
-    let bowlersDataInSuperOvers = getEconomicBowlerInSuperOver(deliveriesArray);
-    console.log(bowlersDataInSuperOvers);
-    //let bestEconomicBowlerInSuperOvers = getMostEconomicBowler(bowlersDataInSuperOvers);
-    //console.group(bestEconomicBowlerInSuperOvers);
-    //fs.writeFile('public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowlerInSuperOver),{ flag: 'a+' }, err => {} )
+    let bestEconomicBowler = getBestEconomicBowlerInSuperOver(deliveriesArray);
+    console.log(bestEconomicBowler);
+    fs.writeFileSync('public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowler));
 });
 
-function getEconomicBowlerInSuperOver(deliveriesArray){
-    let bowlersDataInSuperOvers = {};
-    isLastMatch = false;
-    deliveriesArray.forEach(element => {
-        if(deliveriesArray.indexOf(element) === deliveriesArray.length) isLastMatch = true;
-        let bowler = element.bowler;
-        let runs = Number(element.total_runs);
-        let matchid = element.match_id;
-        let previousMatchId;
-        if(element.is_super_over){
+function getBestEconomicBowlerInSuperOver(deliveriesArray){
+    let bowlersDataInSuperOvers = deliveriesArray.reduce((bowlersDataInSuperOvers, dataRow) => {
+        let bowler = dataRow.bowler;
+        let runs = Number(dataRow.total_runs);
+        if(dataRow.is_super_over){
             if(bowlersDataInSuperOvers[bowler]) {
                 bowlersDataInSuperOvers[bowler].runs += runs;
-                bowlersDataInSuperOvers[bowler].deliveries += 1;
-                bowlersDataInSuperOvers[bowler].matches = bowlersDataInSuperOvers[bowler].matches;
+                bowlersDataInSuperOvers[bowler].balls += 1;
             }
             else{ 
-                previousMatchId = element.match_id;
                 bowlersDataInSuperOvers[bowler] = {
                 runs,
-                deliveries : 1,
-                strikeRatesSum : 0,
-                matches : 1,
-                matchid
+                balls : 1,
                 }
             }
         }
-        if(previousMatchId !== element.match_id){
-            bowlersDataInSuperOvers[bowler].strikeRatesSum += (bowlersDataInSuperOvers[bowler].runs/bowlersDataInSuperOvers[bowler].deliveries)*100,
-            bowlersDataInSuperOvers[bowler].matches += 1;
+        return bowlersDataInSuperOvers;
+    },{});
+    let min = (bowlersDataInSuperOvers[deliveriesArray[0].bowler].runs/bowlersDataInSuperOvers[deliveriesArray[0].bowler].balls)*6;
+    return Object.keys(bowlersDataInSuperOvers).reduce((bestEconomicBowler, bowler) =>{
+        let economyRate = (bowlersDataInSuperOvers[bowler].runs/bowlersDataInSuperOvers[bowler].balls)*6;
+        if (economyRate < min && bowlersDataInSuperOvers[bowler].runs > 0) {
+            min = economyRate;
+            bestEconomicBowler = bowler;
         }
-        if(isLastMatch){
-            bowlersDataInSuperOvers[bowler].averageStrikeRate = (bowlersDataInSuperOvers[bowler].strikeRatesSum)/matches;
-        }
-        previousMatchId = element.match_id;
-    });
-    return bowlersDataInSuperOvers;
+        return bestEconomicBowler;
+        },'');
 }
-
-function getMostEconomicBowler(bowlersDataInSuperOvers){
-
-    let bowlerEconomyRates = {};
-    Object.keys(bowlersDataInSuperOvers).forEach((keys) => {bowlerEconomyRates[keys] = bowlersDataInSuperOvers[keys].runs/bowlersDataInSuperOvers[keys].deliveries});
-    console.log(bowlerEconomyRates);
-    return Object.keys(bowlerEconomyRates).find(keys => { return bowlerEconomyRates[keys] === Math.min(...Object.values(bowlerEconomyRates))
-    })
-    }

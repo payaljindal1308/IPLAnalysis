@@ -38,7 +38,7 @@ function getTopTenEconomicBowlers(matchIds2015Obj, jsonDeliveriesArray){
                 bowlerData[bowler] = { 
                     runs,
                     balls: 1,
-                    economyRate:0,
+                    economyRate: 0,
                 };
             }
         }
