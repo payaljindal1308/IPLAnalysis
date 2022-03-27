@@ -1,34 +1,34 @@
 const fs = require('fs');
 const csvDeliveriesFilePath = 'data/deliveries.csv';
 const csvMatches = require('csvtojson');
-csvMatches().fromFile(csvDeliveriesFilePath).then(( jsonDeliveriesObj ) => {
-    let dismissedPlayers = getDismissedPlayers(jsonDeliveriesObj);
-    let highestNoOfTimesDismissed = getMostDismissed(dismissedPlayers);
-    console.log(highestNoOfTimesDismissed);
-    fs.writeFile('public/output/dismissedPlayers.json', JSON.stringify(highestNoOfTimesDismissed),{ flag: 'a+' }, err => {} )
+csvMatches().fromFile(csvDeliveriesFilePath).then(( jsonDeliveriesArray ) => {
+    let highestDismissalOfAPlayer = gethighestDismissalOfAPlayer(jsonDeliveriesArray);
+    console.log(highestDismissalOfAPlayer);
+    fs.writeFileSync('public/output/dismissedPlayers.json', JSON.stringify(highestDismissalOfAPlayer) );
 });
 
-function getDismissedPlayers(jsonDeliveriesObj){
-    return jsonDeliveriesObj.reduce((teamObj, element) => { 
-        if(element.player_dismissed) {
-            if(teamObj[element.player_dismissed]){
-                if(teamObj[element.player_dismissed][element.bowler]) teamObj[element.player_dismissed][element.bowler] +=1;
-                else teamObj[element.player_dismissed][element.bowler] =1;
+function gethighestDismissalOfAPlayer(jsonDeliveriesArray){
+    let teamObj = {};
+    return jsonDeliveriesArray.reduce((max, dataRow) => { 
+        let playerDismissed = dataRow.player_dismissed;
+        let bowler = dataRow.bowler;
+        if(playerDismissed) {
+            if(teamObj[playerDismissed]){
+                if(teamObj[playerDismissed][bowler]) teamObj[playerDismissed][bowler] +=1;
+                else teamObj[playerDismissed][bowler] =1;
+                if(teamObj[playerDismissed][bowler] > max){
+                    max = teamObj[playerDismissed][bowler];
+                }
             }
             else{
-                teamObj[element.player_dismissed] = {}; 
-                teamObj[element.player_dismissed][element.bowler] = 1;
+                teamObj[playerDismissed] = {}; 
+                teamObj[playerDismissed][bowler] = 1;
             }
         }
-    return teamObj},{});
+        return max;
+    },0);
 }
 
-function getMostDismissed(dismissedPlayers){
-    let dismissedHighest = {};
-    Object.keys(dismissedPlayers).forEach( keys => { dismissedHighest[keys] = Math.max(...Object.values(dismissedPlayers[keys]));
-});
-return Math.max(...Object.values(dismissedHighest));
-}
         
 
     

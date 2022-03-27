@@ -1,21 +1,19 @@
-const csvFilePath = 'data/matches.csv';
+const csvMatchesFilePath = 'data/matches.csv';
 const csv = require('csvtojson')
 const fs= require('fs');
-csv().fromFile(csvFilePath).then((jsonObj)=>{  
-    let matchesPerYearOutput = matchesPerYear(jsonObj)
-    console.log(matchesPerYearOutput)
-    fs.writeFile('public/output/matchesPerYear.json', JSON.stringify(matchesPerYearOutput),{ flag: 'a+' }, err => {} )
+csv().fromFile(csvMatchesFilePath).then((jsonMatchesArray)=>{  
+    let matchesPerYear = getMatchesPerYear(jsonMatchesArray)
+    console.log(matchesPerYear);
+    fs.writeFileSync('public/output/matchesPerYear.json', JSON.stringify(matchesPerYear));
 });
 
-function matchesPerYear(jsonObj){
-    let  MatchObj = {};
-    jsonObj.forEach(element => {
-        if(MatchObj[element.season]) MatchObj[element.season] += 1;
-        else{
-            MatchObj[element.season] = 1;
-        }
-    })
-    return MatchObj;
+function getMatchesPerYear(jsonMatchesArray){
+    return jsonMatchesArray.reduce((matchesPerYear, dataRow) => {
+        let season = dataRow.season;
+        if(matchesPerYear[season]) matchesPerYear[season] += 1;
+        else matchesPerYear[season] = 1;
+        return matchesPerYear;
+    },{});
 }
 
 

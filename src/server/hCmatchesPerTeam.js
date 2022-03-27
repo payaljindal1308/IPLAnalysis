@@ -20,7 +20,7 @@ const initialise = (dataObj) => {
         }});
     Highcharts.chart('container', {
         chart:{
-            type: 'line'
+            type: 'bar'
         },
         title: {
             text: 'Matches Per Team'

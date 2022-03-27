@@ -6,7 +6,7 @@ const initialise = (dataObj) => {
     const matches = Object.values(dataObj);
     Highcharts.chart('container1', {
         chart:{
-            type: 'bar'
+            type: 'line'
         },
         title: {
             text: 'Matches Per Year'

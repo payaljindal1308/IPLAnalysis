@@ -602,277 +602,11 @@ const Highcharts = require('highcharts');
 const getRequest =require('./utils.js');
 
 const initialise = (dataObj) => {
-    const years = Object.keys(dataObj).map(element => {return Number(element)});
-    const playerOfMatch = Object.values(dataObj);
-    Highcharts.chart('container3', {
-        chart:{
-            type: 'line'
-        },
-        title: {
-            text: 'Player of the Match Per Year'
-        },
-        xAxis:{
-           categories: playerOfMatch,
-           title: {
-            text: 'Players'
-        }
-        },
-        yAxis: {
-            title: {
-                text: 'Years'
-            }
-        },
-        series: [
-            {
-                name : "Players of the Match",
-                data : years
-            }
-        ],
-    
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 500
-                },
-                chartOptions: {
-                    legend: {
-                        layout: 'horizontal',
-                        align: 'center',
-                        verticalAlign: 'bottom'
-                    }
-                }
-            }]
-        }
-    
-    });
-}
-
-getRequest('output/playerOfTheMatch.json', initialise);
-},{"./utils.js":8,"highcharts":1}],3:[function(require,module,exports){
-const Highcharts = require('highcharts');
-const getRequest =require('./utils.js');
-
-const initialise = (dataObj) => {
-    const bowlers = [];
-    const economyRates = [];
-    dataObj.forEach(element => { bowlers.push(element[0]);
-        economyRates.push(element[1])});
-    Highcharts.chart('container4', {
-        chart:{
-            type: 'line'
-        },
-        title: {
-            text: 'Top Economic Bowlers'
-        },
-        xAxis:{
-           categories: bowlers,
-           title: {
-            text: 'Bowlers'
-        }
-        },
-        yAxis: {
-            title: {
-                text: 'Economy Rates'
-            }
-        },
-        series: [
-            {
-                name : "Top Economic Bowlers",
-                data : economyRates
-            }
-        ],
-    
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 500
-                },
-                chartOptions: {
-                    legend: {
-                        layout: 'horizontal',
-                        align: 'center',
-                        verticalAlign: 'bottom'
-                    }
-                }
-            }]
-        }
-    
-    });
-}
-
-getRequest('output/topTenEconomicalbowlers.json', initialise);
-},{"./utils.js":8,"highcharts":1}],4:[function(require,module,exports){
-const Highcharts = require('highcharts');
-const getRequest =require('./utils.js');
-
-const initialise = (dataObj) => {
-    const teams = Object.keys(dataObj);
-    const matches = Object.values(dataObj);
-    Highcharts.chart('container5', {
-        chart:{
-            type: 'bar'
-        },
-        title: {
-            text: 'Toss and matches won per Team'
-        },
-        xAxis:{
-           categories: teams,
-           title: {
-            text: 'Teams'
-        }
-        },
-        yAxis: {
-            title: {
-                text: 'No. of Matches'
-            }
-        },
-        series: [
-            {
-                name : "No of Matches",
-                data : matches
-            }
-        ],
-    
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 500
-                },
-                chartOptions: {
-                    legend: {
-                        layout: 'horizontal',
-                        align: 'center',
-                        verticalAlign: 'bottom'
-                    }
-                }
-            }]
-        }
-    
-    });
-}
-
-getRequest('output/tossAndMatchWon.json', initialise);
-},{"./utils.js":8,"highcharts":1}],5:[function(require,module,exports){
-const Highcharts = require('highcharts');
-const getRequest =require('./utils.js');
-
-const initialise = (dataObj) => {
-    const teams = Object.keys(dataObj);
-    const yearArray =[];
-    Object.values(dataObj).forEach(value => { Object.keys(value).forEach(year => yearArray.push(Number(year)))})
-    let years = Array.from(new Set(yearArray)).sort();
-    let series1 = [];
-    teams.forEach(team => { 
-        if(team){
-            let valueArray = [];
-            keys = Object.keys(dataObj[team]);
-            years.forEach(value => {
-                 if(dataObj[team][value.toString()]){
-            valueArray.push(dataObj[team][value.toString()]);}
-            else valueArray.push(0);
-        });
-        series1.push({name: team, data : valueArray})
-        }});
-    Highcharts.chart('container', {
-        chart:{
-            type: 'line'
-        },
-        title: {
-            text: 'Matches Per Team'
-        },
-        xAxis:{
-           categories: years,
-           title: {
-            text: 'Years'
-        }
-        },
-        yAxis: {
-            title: {
-                text: 'No. of Matches'
-            }
-        },
-        series: series1,
-    
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 500
-                },
-                chartOptions: {
-                    legend: {
-                        layout: 'horizontal',
-                        align: 'center',
-                        verticalAlign: 'bottom'
-                    }
-                }
-            }]
-        }
-    
-    });
-}
-
-getRequest('output/matchesPerTeam.json', initialise);
-},{"./utils.js":8,"highcharts":1}],6:[function(require,module,exports){
-const Highcharts = require('highcharts');
-const getRequest =require('./utils.js');
-
-const initialise = (dataObj) => {
-    const years = Object.keys(dataObj);
-    const matches = Object.values(dataObj);
-    Highcharts.chart('container1', {
-        chart:{
-            type: 'bar'
-        },
-        title: {
-            text: 'Matches Per Year'
-        },
-        xAxis:{
-           categories: years,
-           title: {
-            text: 'Years'
-        }
-        },
-        yAxis: {
-            title: {
-                text: 'No. of Matches'
-            }
-        },
-        series: [
-            {
-                name : "No of Matches",
-                data : matches
-            }
-        ],
-    
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 500
-                },
-                chartOptions: {
-                    legend: {
-                        layout: 'horizontal',
-                        align: 'center',
-                        verticalAlign: 'bottom'
-                    }
-                }
-            }]
-        }
-    
-    });
-}
-
-getRequest('output/matchesPerYear.json', initialise);
-},{"./utils.js":8,"highcharts":1}],7:[function(require,module,exports){
-const Highcharts = require('highcharts');
-const getRequest =require('./utils.js');
-
-const initialise = (dataObj) => {
     const teams = Object.keys(dataObj);
     const extraRuns = Object.values(dataObj);
     Highcharts.chart('container2', {
         chart:{
-            type: 'line'
+            type: 'bar'
         },
         title: {
             text: 'Extra Runs Per Team'
@@ -914,11 +648,122 @@ const initialise = (dataObj) => {
 }
 
 getRequest('output/extraRunsPerTeam.json', initialise);
-},{"./utils.js":8,"highcharts":1}],8:[function(require,module,exports){
+},{"./utils.js":5,"highcharts":1}],3:[function(require,module,exports){
+const Highcharts = require('highcharts');
+const getRequest =require('./utils.js');
+
+const initialise = (dataObj) => {
+    const teams = Object.keys(dataObj);
+    const yearArray =[];
+    Object.values(dataObj).forEach(value => { Object.keys(value).forEach(year => yearArray.push(Number(year)))})
+    let years = Array.from(new Set(yearArray)).sort();
+    let series1 = [];
+    teams.forEach(team => { 
+        if(team){
+            let valueArray = [];
+            keys = Object.keys(dataObj[team]);
+            years.forEach(value => {
+                 if(dataObj[team][value.toString()]){
+            valueArray.push(dataObj[team][value.toString()]);}
+            else valueArray.push(0);
+        });
+        series1.push({name: team, data : valueArray})
+        }});
+    Highcharts.chart('container', {
+        chart:{
+            type: 'bar'
+        },
+        title: {
+            text: 'Matches Per Team'
+        },
+        xAxis:{
+           categories: years,
+           title: {
+            text: 'Years'
+        }
+        },
+        yAxis: {
+            title: {
+                text: 'No. of Matches'
+            }
+        },
+        series: series1,
+    
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    
+    });
+}
+
+getRequest('output/matchesPerTeam.json', initialise);
+},{"./utils.js":5,"highcharts":1}],4:[function(require,module,exports){
+const Highcharts = require('highcharts');
+const getRequest =require('./utils.js');
+
+const initialise = (dataObj) => {
+    const years = Object.keys(dataObj);
+    const matches = Object.values(dataObj);
+    Highcharts.chart('container1', {
+        chart:{
+            type: 'line'
+        },
+        title: {
+            text: 'Matches Per Year'
+        },
+        xAxis:{
+           categories: years,
+           title: {
+            text: 'Years'
+        }
+        },
+        yAxis: {
+            title: {
+                text: 'No. of Matches'
+            }
+        },
+        series: [
+            {
+                name : "No of Matches",
+                data : matches
+            }
+        ],
+    
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    
+    });
+}
+
+getRequest('output/matchesPerYear.json', initialise);
+},{"./utils.js":5,"highcharts":1}],5:[function(require,module,exports){
 module.exports = function getRequest(resource, getData){
     return fetch(resource).then(response => response.json()).then(response => {
         getData(response);
     })
 }
 
-},{}]},{},[6,8,5,7,2,3,4]);
+},{}]},{},[4,5,3,2]);

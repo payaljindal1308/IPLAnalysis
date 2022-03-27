@@ -6,41 +6,34 @@ const csvDeliveriessFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
     
 
-csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj)=>{ 
-    let matchIdsArray = getMatchIds(jsonMatchesObj);
-    csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveriesObj)=>{  
-        let extraRuns = getExtraRuns(matchIdsArray, jsonDeliveriesObj);
-        console.log(extraRuns);
-        fs.writeFile('public/output/extraRunsPerTeam.json', JSON.stringify(extraRuns),{ flag: 'a+' }, err => {} )
+csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesArray)=>{ 
+    let matchIdsFor2016 = getMatchIdsFor2016(jsonMatchesArray);
+    csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveriesArray)=>{  
+        let extraRunsPerTeamFor2016 = getExtraRunsPerTeamFor2016(matchIdsFor2016, jsonDeliveriesArray);
+        console.log(extraRunsPerTeamFor2016);
+        fs.writeFileSync('public/output/extraRunsPerTeam.json', JSON.stringify(extraRunsPerTeamFor2016));
     });
 });
 
 
-//Function to get match ids of 2016 matches
-
-function getMatchIds(jsonMatchesObj){
-    let MatchIds =[];
-    jsonMatchesObj.forEach(element => {
-        if (element.season === '2016'){
-            MatchIds.push(element.id);
-        } 
-    });
-    return MatchIds;
+function getMatchIdsFor2016(jsonMatchesArray){
+    return jsonMatchesArray.reduce((matchIds2016Object, dataRow) => {
+        let id = dataRow.id;
+        let season = dataRow.season;
+        if (season === '2016') matchIds2016Object[id] = 1; 
+        return matchIds2016Object;
+    },{});
 }
 
-
-// function to return extra runs per team in 2016
-function getExtraRuns(matchIdsArray, jsonDeliveriesObj){
-    let TeamObject = {};
-        jsonDeliveriesObj.forEach( element => {
-            if (matchIdsArray.includes(element.match_id)){
-                if(TeamObject[element.bowling_team]){
-                    TeamObject[element.bowling_team] += Number(element.extra_runs);
-                }
-                else {
-                    TeamObject[element.bowling_team] = Number(element.extra_runs);
-                }
-            }
-        });
-    return TeamObject;
+function getExtraRunsPerTeamFor2016(matchIds2016Obj, jsonDeliveriesArray){
+    return jsonDeliveriesArray.reduce((extraRunsPerTeamFor2016,dataRow) => {
+        let id = dataRow.match_id;
+        let bowlingTeam = dataRow.bowling_team;
+        let extraRuns = Number(dataRow.extra_runs);
+        if (matchIds2016Obj[id]){
+            if(extraRunsPerTeamFor2016[bowlingTeam]) extraRunsPerTeamFor2016[bowlingTeam] += extraRuns;
+            else extraRunsPerTeamFor2016[bowlingTeam] = extraRuns;
+        }
+        return extraRunsPerTeamFor2016;
+    },{});
 }

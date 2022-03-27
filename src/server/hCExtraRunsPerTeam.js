@@ -6,7 +6,7 @@ const initialise = (dataObj) => {
     const extraRuns = Object.values(dataObj);
     Highcharts.chart('container2', {
         chart:{
-            type: 'line'
+            type: 'bar'
         },
         title: {
             text: 'Extra Runs Per Team'

@@ -1,37 +1,41 @@
 const fs = require('fs');
-const csvMatchesFilePath = './src/data/matches.csv';
+const csvMatchesFilePath = 'data/matches.csv';
 const csvMatches = require('csvtojson');
-csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesObj) => {
-    let matchIds = getMatchIdsWithSeason(jsonMatchesObj);      
-        let highestPlayerOfTheMatch = gethighestPlayerOfTheMatch(matchIds);
-        console.log(highestPlayerOfTheMatch);
-        fs.writeFile('./src/public/output/playerOfTheMatch.json', JSON.stringify(highestPlayerOfTheMatch),{ flag: 'a+' }, err => {} )
+csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesArray) => {      
+        let playersOfTheMatch = getPlayersOfTheMatch(jsonMatchesArray);
+        let highestPlayersOnly = getHighestPlayersOnly(playersOfTheMatch);
+        console.log(highestPlayersOnly);
+        fs.writeFileSync('public/output/playerOfTheMatch.json', JSON.stringify(highestPlayersOnly));
     });
 
-function getMatchIdsWithSeason(jsonMatchesObj){
-    let matchIds = {};
-    jsonMatchesObj.forEach(element => { 
-        if(matchIds[element.season]) {
-            if(matchIds[element.season][element.player_of_match]) matchIds[element.season][element.player_of_match]+=1;
-            else matchIds[element.season][element.player_of_match] = 1;
-        }
-        else{
-            matchIds[element.season] = {};
-            matchIds[element.season][element.player_of_match] = 1;
-        }
-    });
-    return matchIds;
- 
+function getPlayersOfTheMatch(jsonMatchesArray){
+    return jsonMatchesArray.reduce((playersData, dataRow)  =>  { 
+            let player = dataRow.player_of_match;
+            let season = dataRow.season;
+            if(playersData[season]){
+                if(playersData[season][player]) playersData[season][player]+=1;
+                else playersData[season][player] = 1;
+                if (playersData[season][player] > playersData[season].max){
+                    playersData[season].max = playersData[season][player];
+                    playersData[season].highest = [player];
+                }
+                else if (playersData[season][player] === playersData[season].max){
+                    playersData[season].highest.push(player);
+                }
+            } 
+            else {
+                playersData[season] = {
+                    max: 1,
+                    highest: [player]
+                };
+            }
+            return playersData;
+    },{});
 }
 
-
-
-function gethighestPlayerOfTheMatch(matchIds){
-    let highestPlayerOfMatch = Object.keys(matchIds).reduce((playerArray,keys) => {
-            playerArray[keys] = Object.keys(matchIds[keys]).find(element => {
-        if(matchIds[keys][element] === Math.max(...Object.values(matchIds[keys]))) return element;
-    }) 
-    return playerArray;
+function getHighestPlayersOnly(playersData){
+    return Object.keys(playersData).reduce((highestPlayer, data) => {
+        highestPlayer[data] = playersData[data].highest;
+        return highestPlayer;
     },{});
-    return highestPlayerOfMatch;
 }
