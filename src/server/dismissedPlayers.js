@@ -8,21 +8,21 @@ csvMatches().fromFile(csvDeliveriesFilePath).then(( jsonDeliveriesArray ) => {
 });
 
 function gethighestDismissalOfAPlayer(jsonDeliveriesArray){
-    let teamObj = {};
+    let dismissedPlayersData = {};
     return jsonDeliveriesArray.reduce((max, dataRow) => { 
         let playerDismissed = dataRow.player_dismissed;
         let bowler = dataRow.bowler;
         if(playerDismissed) {
-            if(teamObj[playerDismissed]){
-                if(teamObj[playerDismissed][bowler]) teamObj[playerDismissed][bowler] +=1;
-                else teamObj[playerDismissed][bowler] =1;
-                if(teamObj[playerDismissed][bowler] > max){
-                    max = teamObj[playerDismissed][bowler];
+            if(dismissedPlayersData[playerDismissed]){
+                if(dismissedPlayersData[playerDismissed][bowler]) dismissedPlayersData[playerDismissed][bowler] +=1;
+                else dismissedPlayersData[playerDismissed][bowler] =1;
+                if(dismissedPlayersData[playerDismissed][bowler] > max){
+                    max = dismissedPlayersData[playerDismissed][bowler];
                 }
             }
             else{
-                teamObj[playerDismissed] = {}; 
-                teamObj[playerDismissed][bowler] = 1;
+                dismissedPlayersData[playerDismissed] = {}; 
+                dismissedPlayersData[playerDismissed][bowler] = 1;
             }
         }
         return max;
