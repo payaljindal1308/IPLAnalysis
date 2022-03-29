@@ -1,36 +1,41 @@
 const fs = require('fs');
-const csvDeliveriessFilePath = './src/data/deliveries.csv';
+const csvDeliveriesFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
-csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonObj) => {
-    let bowlersData = getEconomicBowlerInSuperOver(jsonObj);
-    let bestEconomicBowlerInSuperOver = getMostEconomicBowler(bowlersData);
-    console.group(bestEconomicBowlerInSuperOver);
-    fs.writeFile('./src/public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowlerInSuperOver),{ flag: 'a+' }, err => {} )
+csvDeliveries().fromFile(csvDeliveriesFilePath).then((deliveriesArray) => {
+    let bowlersData = getBowlersDataInSuperOvers(deliveriesArray);
+    let bestEconomicBowler = getMostEconomicBowlerInSuperOvers(bowlersData);
+    console.log(bestEconomicBowler);
+    fs.writeFileSync('public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowler));
 });
 
-function getEconomicBowlerInSuperOver(jsonObj){
-    let bowlerData = {};
-    jsonObj.forEach(element => {
-        if(element.is_super_over != 0){
-            if(bowlerData[element.bowler]) {
-                bowlerData[element.bowler].runs += Number(element.total_runs);
-                bowlerData[element.bowler].deliveries += 1;
+function getBowlersDataInSuperOvers(deliveriesArray){
+    
+    return deliveriesArray.reduce((bowlersData, dataRow) => {
+        const { bowler, total_runs } = dataRow || {};
+        let runs = Number(dataRow.total_runs);
+        if(dataRow.is_super_over != 0){
+            if(bowlersData[bowler]) {
+                bowlersData[bowler].runs += runs;
+                bowlersData[bowler].balls += 1;
+                bowlersData[bowler].economyRate = bowlersData[bowler].runs/bowlersData[bowler].balls;
             }
-            else{ bowlerData[element.bowler] = {
-                runs : Number(element.total_runs),
-                deliveries : 1
+            else{ bowlersData[bowler] = {
+                runs,
+                balls : 1,
+                economyRate : runs
                 }
             }
         }
-    });
-    return bowlerData;
+        return bowlersData;
+    },{});
+
 }
-
-function getMostEconomicBowler(bowlersData){
-
-    let bowlerEconomyRates = {};
-    Object.keys(bowlersData).forEach((keys) => {bowlerEconomyRates[keys] = bowlersData[keys].runs/bowlersData[keys].deliveries});
-    console.log(bowlerEconomyRates);
-    return Object.keys(bowlerEconomyRates).find(keys => { return bowlerEconomyRates[keys] === Math.min(...Object.values(bowlerEconomyRates))
-    })
-    }
+function getMostEconomicBowlerInSuperOvers(bowlersData){
+    let min = 100;
+    return Object.keys(bowlersData).reduce((bestEconomicBowler, bowler) => { 
+        if(bowlersData[bowler].economyRate < min){
+        min = bowlersData[bowler].economyRate;
+        bestEconomicBowler = bowler;
+    } 
+    return bestEconomicBowler;
+    },'')}    

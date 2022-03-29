@@ -1,37 +1,32 @@
 const fs = require('fs');
-const csvFilePath = './src/data/matches.csv';
+const csvFilePath = 'data/matches.csv';
 const csv = require('csvtojson')
 
-csv().fromFile(csvFilePath).then((jsonObj)=>{  
-    let matchesObject = findMatchesPerTeamPerYear(jsonObj); 
-    let matchesPerTeam = noOfMatchesPerTeamPerYear(matchesObject);
-    console.log(matchesPerTeam);
-    fs.writeFile('./src/public/output/matchesPerTeam.json', JSON.stringify(matchesPerTeam),{ flag: 'a+' }, err => {} );
+csv().fromFile(csvFilePath).then((jsonDeliveriesArray)=>{  
+    let matchesWonByTeamsPerSeason = findMatchesPerTeamPerSeason(jsonDeliveriesArray); 
+    console.log(matchesWonByTeamsPerSeason);
+    fs.writeFileSync('public/output/matchesPerTeam.json', JSON.stringify(matchesWonByTeamsPerSeason));
 });
 
-    function findMatchesPerTeamPerYear(jsonObj){
-    let  matchesObj = {};
-    jsonObj.forEach(element => {
-        if(matchesObj[element.winner]) matchesObj[element.winner].push(element.season);
-        else{
-            matchesObj[element.winner] = [element.season];
-        }
-    });
-    return matchesObj;
-    }   
-
-    function noOfMatchesPerTeamPerYear(matchesObj){
-        let matchesPerTeam = {};
-        Object.keys(matchesObj).forEach( element => {
-            let count = {};
-            Object.values(matchesObj[element]).forEach( year => {
-                if(count[year]) count[year]+=1;
-                else{
-                    count[year] = 1;
-                }
-            });
-            matchesPerTeam[element] = count;
-        });
-        return matchesPerTeam;
-    }
+function findMatchesPerTeamPerSeason(jsonDeliveriesArray){
     
+
+    return jsonDeliveriesArray.reduce((matchesWonByTeamsPerSeason, dataRow) => {
+        const { winner, season } = dataRow || {};
+        if(dataRow.winner){
+        if(matchesWonByTeamsPerSeason[winner]) {
+            if(matchesWonByTeamsPerSeason[winner][season]){
+                matchesWonByTeamsPerSeason[winner][season] += 1;
+            }
+            else{
+                matchesWonByTeamsPerSeason[winner][season] = 1;
+            }
+        }
+        else{
+            matchesWonByTeamsPerSeason[winner] = {};
+            matchesWonByTeamsPerSeason[winner][season] = 1;
+        }
+        }
+        return matchesWonByTeamsPerSeason;
+    },{});
+}   

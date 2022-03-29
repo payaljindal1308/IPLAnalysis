@@ -1,22 +1,30 @@
 const fs = require('fs');
-const csvDeliveriesFilePath = './src/data/deliveries.csv';
+const csvDeliveriesFilePath = 'data/deliveries.csv';
 const csvMatches = require('csvtojson');
-csvMatches().fromFile(csvDeliveriesFilePath).then(( jsonDeliveriesObj ) => {
-    let dismissedPlayers = getDismissedPlayers(jsonDeliveriesObj);
-    let mostDismissedPlayer = getMostDismissedPlayer(dismissedPlayers, jsonDeliveriesObj);
-    console.log(mostDismissedPlayer);
-    fs.writeFile('./src/public/output/playerDismissed.json', JSON.stringify(mostDismissedPlayer),{ flag: 'a+' }, err => {} )
+csvMatches().fromFile(csvDeliveriesFilePath).then(( jsonDeliveriesArray ) => {
+    let highestDismissalOfAPlayer = gethighestDismissalOfAPlayer(jsonDeliveriesArray);
+    console.log(highestDismissalOfAPlayer);
+    fs.writeFileSync('public/output/playerDismissed.json', JSON.stringify(highestDismissalOfAPlayer) );
 });
 
-function getDismissedPlayers(jsonDeliveriesObj){
-    return jsonDeliveriesObj.reduce((teamObj, element) => { if(element.player_dismissed) teamObj[element.player_dismissed] = 0; return teamObj},{});
+function gethighestDismissalOfAPlayer(jsonDeliveriesArray){
+    let dismissedPlayersData = {};
+    return jsonDeliveriesArray.reduce((max, dataRow) => { 
+        const { bowler, player_dismissed} = dataRow || {};
+        if(player_dismissed) {
+            if(dismissedPlayersData[player_dismissed]){
+                if(dismissedPlayersData[player_dismissed][bowler]) dismissedPlayersData[player_dismissed][bowler] +=1;
+                else dismissedPlayersData[player_dismissed][bowler] =1;
+                if(dismissedPlayersData[player_dismissed][bowler] > max){
+                    max = dismissedPlayersData[player_dismissed][bowler];
+                }
+            }
+            else{
+                dismissedPlayersData[player_dismissed] = {}; 
+                dismissedPlayersData[player_dismissed][bowler] = 1;
+            }
+        }
+        return max;
+    },0);
 }
 
-function getMostDismissedPlayer(dismissedPlayers, jsonDeliveriesObj){
-    jsonDeliveriesObj.forEach(element => { if(element.player_dismissed) dismissedPlayers[element.player_dismissed] += 1});
-    return Object.keys(dismissedPlayers).find( keys => { return dismissedPlayers[keys] === Math.max(...Object.values(dismissedPlayers));
-});
-}
-        
-
-    

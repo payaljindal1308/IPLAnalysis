@@ -1,56 +1,73 @@
 
+
 const fs = require('fs');
-const csvMatchesFilePath = './src/data/matches.csv';
+const csvMatchesFilePath = 'data/matches.csv';
 const csvMatches = require('csvtojson')
-const csvDeliveriessFilePath = './src/data/deliveries.csv';
+const csvDeliveriessFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson');
 const { match } = require('assert');
-    
 
-csvMatches().fromFile(csvMatchesFilePath).then((jsonObj) => {
-    let matchIds = getMatchIdsWithSeason(jsonObj);
-    csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveryObj) =>{
-        let batsMenData = getBatsMenData(matchIds, jsonDeliveryObj);
+csvMatches().fromFile(csvMatchesFilePath).then((jsonMatchesArray) => {
+    let matchIdsBySeason = getMatchIdsBySeason(jsonMatchesArray);
+    csvDeliveries().fromFile(csvDeliveriessFilePath).then((jsonDeliveriesArray) =>{
+        let batsMenData = getBatsMenData(matchIdsBySeason, jsonDeliveriesArray);
         let batsMenStrikeRates = getBatsMenStrikeRates(batsMenData);
         console.log(batsMenStrikeRates);
-        fs.writeFile('./src/public/output/strikeRate.json', JSON.stringify(batsMenStrikeRates),{ flag: 'a+' }, err => {} )
+        fs.writeFileSync('public/output/strikeRate.json', JSON.stringify(batsMenStrikeRates));
     });
 });
 
-function getMatchIdsWithSeason(jsonMatchesObj){
-    let matchIds = {};
-    jsonMatchesObj.forEach(element => { 
-        if(matchIds[element.season]) matchIds[element.season].push(element.id);
-        else matchIds[element.season] = [element.id];
-    });
-    return matchIds;
-
+function getMatchIdsBySeason(jsonMatchesArray){
+    return jsonMatchesArray.reduce((matchIdsBySeason, dataRow)=> { 
+        const { id, season} = dataRow || {};
+        if(dataRow[id]) matchIdsBySeason[id][season] = 1;
+        else { 
+            matchIdsBySeason[id] = {};
+            matchIdsBySeason[id] = season;
+        }
+        
+        return matchIdsBySeason;
+    },{});
 }
 
-function getBatsMenData(matchIds, jsonDeliveryObj){
-    batsMenSeasons = {};
-    Object.keys(matchIds).forEach( keys => { 
-        batsMenSeasons[keys] = {};
-        jsonDeliveryObj.forEach(element => {
-            if(matchIds[keys].includes(element.match_id)){
-                if(batsMenSeasons[keys][element.batsman]){
-                    batsMenSeasons[keys][element.batsman].runs += Number(element.total_runs);
-                    batsMenSeasons[keys][element.batsman].balls += 1;
-                }
-                else{
-                    batsMenSeasons[keys][element.batsman] = { runs: Number(element.total_runs), balls : 1};
-                }
+function getBatsMenData(matchIdsBySeason, jsonDeliveriesArray){
+    return jsonDeliveriesArray.reduce((batsMenData, dataRow) => { 
+        const { match_id, batsman } = dataRow || {};
+        let runs = Number(dataRow.batsman_runs);
+        let season = matchIdsBySeason[match_id];
+        if(batsMenData[batsman])
+         {
+             if(batsMenData[batsman][season]){
+                batsMenData[batsman][season].runs += runs; 
+                batsMenData[batsman][season].balls += 1;
+                batsMenData[batsman][season].strikeRate = (batsMenData[batsman][season].runs/batsMenData[batsman][season].balls)*100;
+             }
+             else{
+                 batsMenData[batsman][season] = {
+                     runs,
+                     balls : 1,
+                     strikeRate : 0
+                 }
+             }
+        }
+        else{
+            batsMenData[batsman] = {}
+            batsMenData[batsman][season] = {
+                runs,
+                balls : 1,
+                strikeRate : 0
             }
-        });
-    });
-    return batsMenSeasons;
+        }
+        return batsMenData;
+        },{});
 }
 
-function getBatsMenStrikeRates(batsMenSeasons){
-        Object.keys(batsMenSeasons).forEach(keys =>{
-        Object.keys(batsMenSeasons[keys]).forEach( seasonKey => {
-        batsMenSeasons[keys][seasonKey] = (batsMenSeasons[keys][seasonKey].runs/batsMenSeasons[keys][seasonKey].balls)*100;
-        });
-    });
-    return batsMenSeasons;
+function getBatsMenStrikeRates(batsMenData){
+    return Object.keys(batsMenData).reduce((data, batsman) =>{
+    data[batsman] = Object.keys(batsMenData[batsman]).reduce((dataSeason, season) => {
+        dataSeason[season] = batsMenData[batsman][season].strikeRate;
+        return dataSeason;
+    },{});
+    return data;
+},{});
 }
