@@ -2,36 +2,39 @@ const fs = require('fs');
 const csvDeliveriesFilePath = 'data/deliveries.csv';
 const csvDeliveries = require('csvtojson')
 csvDeliveries().fromFile(csvDeliveriesFilePath).then((deliveriesArray) => {
-    let bestEconomicBowler = getBestEconomicBowlerInSuperOver(deliveriesArray);
+    let bowlersData = getBowlersDataInSuperOvers(deliveriesArray);
+    let bestEconomicBowler = getMostEconomicBowlerInSuperOvers(bowlersData);
     console.log(bestEconomicBowler);
     fs.writeFileSync('public/output/bestEconomyInSuperOver.json', JSON.stringify(bestEconomicBowler));
 });
 
-function getBestEconomicBowlerInSuperOver(deliveriesArray){
-    let bowlersDataInSuperOvers = deliveriesArray.reduce((bowlersDataInSuperOvers, dataRow) => {
-        let bowler = dataRow.bowler;
-        let runs = Number(dataRow.total_runs);
-        if(dataRow.is_super_over){
-            if(bowlersDataInSuperOvers[bowler]) {
-                bowlersDataInSuperOvers[bowler].runs += runs;
-                bowlersDataInSuperOvers[bowler].balls += 1;
+function getBowlersDataInSuperOvers(deliveriesArray){
+    return deliveriesArray.reduce((bowlersData, element) => {
+        let bowler = element.bowler;
+        let runs = Number(element.total_runs);
+        if(element.is_super_over != 0){
+            if(bowlersData[bowler]) {
+                bowlersData[bowler].runs += runs;
+                bowlersData[bowler].balls += 1;
+                bowlersData[bowler].economyRate = bowlersData[bowler].runs/bowlersData[bowler].balls;
             }
-            else{ 
-                bowlersDataInSuperOvers[bowler] = {
+            else{ bowlersData[bowler] = {
                 runs,
                 balls : 1,
+                economyRate : runs
                 }
             }
         }
-        return bowlersDataInSuperOvers;
+        return bowlersData;
     },{});
-    let min = (bowlersDataInSuperOvers[deliveriesArray[0].bowler].runs/bowlersDataInSuperOvers[deliveriesArray[0].bowler].balls)*6;
-    return Object.keys(bowlersDataInSuperOvers).reduce((bestEconomicBowler, bowler) =>{
-        let economyRate = (bowlersDataInSuperOvers[bowler].runs/bowlersDataInSuperOvers[bowler].balls)*6;
-        if (economyRate < min && bowlersDataInSuperOvers[bowler].runs > 0) {
-            min = economyRate;
-            bestEconomicBowler = bowler;
-        }
-        return bestEconomicBowler;
-        },'');
+
 }
+function getMostEconomicBowlerInSuperOvers(bowlersData){
+    let min = 100;
+    return Object.keys(bowlersData).reduce((bestEconomicBowler, bowler) => { 
+        if(bowlersData[bowler].economyRate < min){
+        min = bowlersData[bowler].economyRate;
+        bestEconomicBowler = bowler;
+    } 
+    return bestEconomicBowler;
+    },'')}    
